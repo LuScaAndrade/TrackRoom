@@ -6,6 +6,7 @@ const dbConfig = defineConfig({
   connections: {
     postgres: {
       client: 'pg',
+      searchPath: [env.get('DB_SCHEMA')],
       connection: {
         host: env.get('DB_HOST'),
         port: env.get('DB_PORT'),
@@ -16,6 +17,7 @@ const dbConfig = defineConfig({
       migrations: {
         naturalSort: true,
         paths: ['database/migrations'],
+        tableName: 'adonis_schema',
       },
     },
   },
