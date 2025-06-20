@@ -8,24 +8,18 @@ export default class UsersController {
    */
   async index({ response }: HttpContext) {
     try {
-      const allUsers = User.all()
+      const allUsers = await User.all()
 
-      if ((await allUsers).length == 0) {
+      if (allUsers.length == 0) {
         return response.internalServerError(`Don't exists any registered users`)
       }
 
-      return response.ok(allUsers)
+      return response.status(200).json({ message: `Usuários: ${allUsers}` })
     } catch (error) {
-      console.log(error)
       logger.error(error)
-      return response.internalServerError(error)
+      return response.internalServerError(error.message)
     }
   }
-
-  /**
-   * Display form to create a new record
-   */
-  // async create({}: HttpContext) {}
 
   // /**
   //  * Handle form submission for the create action
@@ -35,15 +29,39 @@ export default class UsersController {
   // /**
   //  * Show individual record
   //  */
-  // async show({ params }: HttpContext) {}
+  async show({ params, response }: HttpContext) {
+    try {
+      const user = await User.findOrFail(params.id)
+
+      return response.status(200).json({ message: `Usuário: ${user}` })
+    } catch (error) {
+      logger.error(error)
+      return response.internalServerError(error.message)
+    }
+  }
 
   // /**
   //  * Handle form submission for the edit action
   //  */
-  // async update({ params, request }: HttpContext) {}
+  // async update({ params, request, response }: HttpContext) {
+  //   try {
+  //     const
+
+  //   } catch (error) {
+
+  //   }
+  // }
 
   // /**
   //  * Delete record
   //  */
-  // async destroy({ params }: HttpContext) {}
+  async destroy({ response, params }: HttpContext) {
+    try {
+      const user = await User.findOrFail(params.id)
+      await user.delete()
+      await user.save()
+
+      return response.status(200).json({ message: `Usuário ${user.id} excluído com sucesso!` })
+    } catch (error) {}
+  }
 }
