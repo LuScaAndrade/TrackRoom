@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
 import User from './user.js'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 
 export default class Song extends BaseModel {
   @column({ isPrimary: true })
@@ -16,10 +16,22 @@ export default class Song extends BaseModel {
   @column()
   declare bpm: number | null
 
-  @belongsTo(() => User, {
-    foreignKey: 'singerId',
-  })
+  @column()
+  declare singerId: number
+
+  //Permite saber quem é o cantor
+  @belongsTo(() => User)
   declare singer: BelongsTo<typeof User>
+
+  //Permite saber quais usuários tem essa música
+  @manyToMany(() => User, {
+    pivotTable: 'users_songs',
+    localKey: 'id',
+    pivotForeignKey: 'song_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'user_id',
+  })
+  declare users: ManyToMany<typeof User>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
